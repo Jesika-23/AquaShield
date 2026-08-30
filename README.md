@@ -213,13 +213,17 @@ Feedback is stored in:
 
 ```text
 feedback_log.csv
+```
 
 The feedback log can be used for future analysis, labeling, and model improvement.
 
-🧠 How AquaShield Works
+---
+
+# 🧠 How AquaShield Works
 
 The overall workflow is:
 
+```text
 User
   ↓
 Upload Underwater / Sonar-Style Image
@@ -243,15 +247,21 @@ Priority & Supporting Analysis
 Report Generation
   ↓
 Feedback & Detection History
-🏗️ System Architecture
+```
+
+---
+
+# 🏗️ System Architecture
+
+```text
                     ┌──────────────────────┐
                     │        User          │
                     └──────────┬───────────┘
                                │
                                ▼
                     ┌──────────────────────┐
-                    │   Streamlit UI       │
-                    │   Image Upload        │
+                    │     Streamlit UI     │
+                    │    Image Upload      │
                     └──────────┬───────────┘
                                │
                                ▼
@@ -268,7 +278,7 @@ Feedback & Detection History
                                │
                                ▼
                     ┌──────────────────────┐
-                    │ Detection Results    │
+                    │  Detection Results   │
                     │ Class + Confidence   │
                     │ + Bounding Boxes     │
                     └──────────┬───────────┘
@@ -291,45 +301,66 @@ Feedback & Detection History
              ┌─────────────┐       ┌─────────────┐
              │  Feedback   │       │   History   │
              └─────────────┘       └─────────────┘
-🛠️ Technology Stack
-Technology	Purpose
-Python	Core application and AI processing
-Streamlit	Web application interface
-Ultralytics YOLO	Object detection
-OpenCV	Image processing and computer vision
-Pandas	Data handling and feedback logging
-Pillow	Image loading and processing
-Plotly	Data visualization
-🤖 AI Model
+```
 
-AquaShield uses a trained YOLO11n object detection model.
+---
+
+# 🛠️ Technology Stack
+
+| Technology | Purpose |
+|------------|---------|
+| Python | Core application and AI processing |
+| Streamlit | Web application interface |
+| Ultralytics YOLO | Object detection |
+| OpenCV | Image processing and computer vision |
+| Pandas | Data handling and feedback logging |
+| Pillow | Image loading and processing |
+| Plotly | Data visualization |
+
+---
+
+# 🤖 AI Model
+
+AquaShield uses a trained **YOLO11n object detection model**.
 
 The trained model is stored in:
 
+```text
 model/best.pt
+```
 
 The model was trained to detect four classes:
 
+```text
 0 → Aircraft
 1 → Fish
 2 → Reef
 3 → Ship
+```
 
 The model provides bounding-box detections and confidence scores for objects identified in an input image.
 
-📊 Model Performance
-Metric	Value
-Model	YOLO11n
-Precision	47.3%
-Recall	55.3%
-mAP@0.50	51.5%
-mAP@0.50-0.95	31.4%
-Training Images	402
-Validation Images	110
+---
+
+# 📊 Model Performance
+
+| Metric | Value |
+|--------|-------|
+| Model | YOLO11n |
+| Precision | 47.3% |
+| Recall | 55.3% |
+| mAP@0.50 | 51.5% |
+| mAP@0.50-0.95 | 31.4% |
+| Training Images | 402 |
+| Validation Images | 110 |
 
 These metrics represent the performance observed during the model-development process and should not be interpreted as production-level accuracy.
 
-📁 Project Structure
+---
+
+# 📁 Project Structure
+
+```text
 AquaShield/
 │
 ├── app.py
@@ -357,124 +388,162 @@ AquaShield/
 │
 └── text/
     └── images/
-🔄 Application Workflow
-Step 1 — Upload
+```
+
+---
+
+# 🔄 Application Workflow
+
+### Step 1 — Upload
 
 The user selects an underwater or sonar-style image through the Streamlit interface.
 
-Step 2 — Preprocessing
+### Step 2 — Preprocessing
 
 The uploaded image is prepared for analysis.
 
-Step 3 — Quality Assessment
+### Step 3 — Quality Assessment
 
 The system evaluates image characteristics that may affect detection reliability.
 
-Step 4 — AI Detection
+### Step 4 — AI Detection
 
 The trained YOLO model analyzes the image and identifies objects.
 
-Step 5 — Confidence Filtering
+### Step 5 — Confidence Filtering
 
 Only detections meeting the selected confidence threshold are presented.
 
-The default threshold is 0.50.
+The default threshold is **0.50**.
 
-Step 6 — Visual Results
+### Step 6 — Visual Results
 
 Detected objects are displayed using bounding boxes and associated information.
 
-Step 7 — Supporting Analysis
+### Step 7 — Supporting Analysis
 
 The application provides additional analysis such as image quality, priority scoring, and shadow-related cues.
 
-Step 8 — Reporting
+### Step 8 — Reporting
 
 The user can generate a structured summary of the analysis.
 
-Step 9 — Location
+### Step 9 — Location
 
 Coordinates can be entered when geographic information is available.
 
-Step 10 — Feedback & History
+### Step 10 — Feedback & History
 
 Users can review previous analysis activity and provide feedback on detections.
 
-🧑‍💻 Getting Started
-Prerequisites
+---
+
+# 🧑‍💻 Getting Started
+
+## Prerequisites
 
 Make sure Python is installed on your system.
 
 A virtual environment is recommended.
 
-1. Clone the repository
+### 1. Clone the repository
+
+```bash
 git clone https://github.com/Jesika-23/AquaShield.git
 cd AquaShield
-2. Create a virtual environment
+```
+
+### 2. Create a virtual environment
+
+```bash
 python -m venv venv
-3. Activate the virtual environment
+```
 
-Windows:
+### 3. Activate the virtual environment
 
+**Windows:**
+
+```bash
 venv\Scripts\activate
+```
 
-Linux / macOS:
+**Linux / macOS:**
 
+```bash
 source venv/bin/activate
-4. Install dependencies
+```
+
+### 4. Install dependencies
+
+```bash
 pip install -r requirements.txt
-5. Run the application
+```
+
+### 5. Run the application
+
+```bash
 streamlit run app.py
+```
 
 The application will open in your browser.
 
-🌐 Deployment
+---
 
-AquaShield is deployed using Streamlit Community Cloud and connected to the GitHub repository.
+# 🌐 Deployment
 
-Live Application
+AquaShield is deployed using **Streamlit Community Cloud** and connected to the GitHub repository.
+
+### Live Application
 
 https://jesika-23-aquashield-app-bnkxiv.streamlit.app/
 
-The deployment automatically uses the project's requirements.txt file to install the required Python dependencies.
+The deployment automatically uses the project's `requirements.txt` file to install the required Python dependencies.
 
-🔮 Future Enhancements
+---
+
+# 🔮 Future Enhancements
 
 AquaShield can be extended in several directions:
 
-Larger and more diverse underwater datasets
-Improved object-detection accuracy
-Real sonar-data integration
-Real-time video or sonar-stream detection
-GPS and mission-data integration
-Advanced anomaly detection
-Improved acoustic-shadow modeling
-More robust underwater image enhancement
-Human-feedback-based model improvement
-Integration with autonomous underwater vehicles
-Multi-frame object tracking
-Cloud-based detection history
-More advanced monitoring dashboards
-⚠️ Limitations & Disclaimer
+- Larger and more diverse underwater datasets
+- Improved object-detection accuracy
+- Real sonar-data integration
+- Real-time video or sonar-stream detection
+- GPS and mission-data integration
+- Advanced anomaly detection
+- Improved acoustic-shadow modeling
+- More robust underwater image enhancement
+- Human-feedback-based model improvement
+- Integration with autonomous underwater vehicles
+- Multi-frame object tracking
+- Cloud-based detection history
+- More advanced monitoring dashboards
 
-AquaShield is a research and educational prototype.
+---
+
+# ⚠️ Limitations & Disclaimer
+
+AquaShield is a **research and educational prototype**.
 
 The current detection model was trained using a relatively small dataset. Model predictions may therefore contain false positives or false negatives.
 
 The image-quality assessment, priority scoring, anomaly signals, and acoustic-shadow analysis are prototype heuristic components. They should be considered supporting decision-making features rather than scientifically validated sonar measurements.
 
-In particular, the acoustic-shadow component is not a validated sonar-physics model.
+In particular, the acoustic-shadow component is **not a validated sonar-physics model**.
 
 AquaShield is not certified for navigation, safety-critical operations, or autonomous decision-making.
 
 All AI-generated detections should be reviewed and verified by a human operator before any real-world action is taken.
 
-📌 Project Status
+---
 
-Status: Functional Research Prototype
+# 📌 Project Status
+
+**Status: Functional Research Prototype**
 
 The current prototype demonstrates an end-to-end workflow for:
 
+```text
 Image Upload
       ↓
 AI Detection
@@ -490,7 +559,11 @@ Priority Assessment
 Reporting
       ↓
 Feedback & History
-📄 License & Notes
+```
+
+---
+
+# 📄 License & Notes
 
 © 2026 AquaShield — Research prototype for educational and demonstration purposes.
 
