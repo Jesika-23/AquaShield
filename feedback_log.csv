@@ -1,0 +1,5 @@
+timestamp,image_filename,class_id,displayed_class,confidence,bbox,feedback,latitude,longitude
+2026-08-29 17:02:22,000001_jpg.rf.2fa1cc60e74968e8a2d4710607582135.jpg,0,Aircraft,0.7512,"[209.2, 159.5, 438.7, 461.2]",Correct,Location not provided,Location not provided
+2026-08-29 18:10:42,000002_jpg.rf.bee0e8fc28627c80a1ab1e7389701a0f.jpg,0,Aircraft,0.8338,"[170.9, 196.2, 475.7, 491.5]",Correct,Location not provided,Location not provided
+2026-08-30 12:38:56,test4.jpg,3,Ship,0.4423,"[77.3, 4.3, 455.7, 221.5]",Correct,Location not provided,Location not provided
+2026-08-30 12:42:09,ship_wreck.jpg,3,Ship,0.6031,"[181.2, 164.6, 314.1, 234.4]",Correct,Location not provided,Location not provided

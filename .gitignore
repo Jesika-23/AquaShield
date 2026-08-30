@@ -1,0 +1,19 @@
+venv/
+__pycache__/
+*.pyc
+.streamlit/secrets.toml
+
+# Training dataset
+train/
+valid/
+
+# Unused YOLO base models
+yolo11n.pt
+yolov8n.pt
+
+# Training/config files not needed for deployment
+data.yaml
+data.yaml.txt
+requirements-lock.txt
+sample_submission.csv
+feedback_export_dataset_ready.csv
