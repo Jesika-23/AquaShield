@@ -96,7 +96,7 @@ with st.sidebar:
     st.markdown('<div class="ds-sidebar-title">Model Settings</div>', unsafe_allow_html=True)
     st.caption("YOLO11n &middot; 4 trained classes &middot; local inference", unsafe_allow_html=True)
     conf_threshold = st.slider(
-        "Confidence threshold", min_value=0.05, max_value=0.95, value=0.25, step=0.05,
+        "Confidence threshold", min_value=0.05, max_value=0.95, value=0.50, step=0.05,
         key="sb_conf_threshold",
     )
     enhance_toggle = st.checkbox(
