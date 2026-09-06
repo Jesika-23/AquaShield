@@ -156,17 +156,27 @@ st.markdown(
         <div class="name">AQUA<b>SHIELD</b></div>
       </div>
       <div class="links">
-        <a href="#home">Home</a>
-        <a href="#performance">Performance</a>
-        <a href="#upload">Analyze</a>
-        <a href="#feedback-insights">Feedback</a>
-        <a href="#history">History</a>
+        <a href="#home" onclick="dsScrollTo(event,'home')">Home</a>
+        <a href="#performance" onclick="dsScrollTo(event,'performance')">Performance</a>
+        <a href="#upload" onclick="dsScrollTo(event,'upload')">Analyze</a>
+        <a href="#feedback-insights" onclick="dsScrollTo(event,'feedback-insights')">History &amp; Feedback</a>
       </div>
       <div style="display:flex; align-items:center; gap:10px;">
         <span class="ds-pill">PS <b>26057</b></span>
         <div class="status"><span>&#9679;</span> MODEL ONLINE -- YOLO11n</div>
       </div>
     </div>
+
+    <script>
+    function dsScrollTo(e, id) {
+        e.preventDefault();
+        var el = (window.parent && window.parent.document.getElementById(id)) || document.getElementById(id);
+        if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "start" });
+            try { history.replaceState(null, "", "#" + id); } catch (err) {}
+        }
+    }
+    </script>
     """,
     unsafe_allow_html=True,
 )
@@ -292,7 +302,7 @@ with left:
         )
         st.caption(f"Confidence threshold: **{conf_threshold:.2f}** (set in sidebar &rarr; Model Settings)", unsafe_allow_html=True)
         analyze_clicked = st.button(
-            "\u25B8  Analyze Image", use_container_width=True, disabled=uploaded_file is None,
+            "\u25B8  Analyze Image", width="stretch", disabled=uploaded_file is None,
         )
 
 
@@ -586,10 +596,10 @@ if "ds_result" in st.session_state:
     img_col1, img_col2 = st.columns(2, gap="large")
     with img_col1:
         with st.container(border=True):
-            st.image(st.session_state["ds_original"], use_container_width=True, caption="Original scan")
+            st.image(st.session_state["ds_original"], width="stretch", caption="Original scan")
     with img_col2:
         with st.container(border=True):
-            st.image(result["annotated_image"], use_container_width=True, caption="AI-detected objects")
+            st.image(result["annotated_image"], width="stretch", caption="AI-detected objects")
 
 
 
@@ -606,10 +616,10 @@ if "ds_result" in st.session_state:
             st.caption("Denoise + CLAHE contrast enhancement, then re-run through the same model.")
             ec1, ec2 = st.columns(2, gap="large")
             with ec1:
-                st.image(result["annotated_image"], use_container_width=True,
+                st.image(result["annotated_image"], width="stretch",
                          caption=f"Original — {len(result['detections'])} detection(s)")
             with ec2:
-                st.image(enhanced_result["annotated_image"], use_container_width=True,
+                st.image(enhanced_result["annotated_image"], width="stretch",
                          caption=f"Enhanced — {len(enhanced_result['detections'])} detection(s)")
 
 
@@ -633,7 +643,7 @@ if "ds_result" in st.session_state:
             else:
                 st.image(
                     anomaly_result["annotated_image"],
-                    use_container_width=True,
+                    width="stretch",
                     caption=f"{anomaly_result['count']} unclassified visual anomaly region(s) highlighted",
                 )
                 if anomaly_result["count"] == 0:
@@ -850,7 +860,7 @@ if "ds_result" in st.session_state:
                 data=report_text,
                 file_name=f"aquashield_report_{Path(st.session_state['ds_file_name']).stem}.txt",
                 mime="text/plain",
-                use_container_width=True,
+                width="stretch",
             )
 
 
@@ -939,7 +949,7 @@ else:
                 .value_counts()
                 .unstack(fill_value=0)
             )
-            st.dataframe(class_breakdown, use_container_width=True)
+            st.dataframe(class_breakdown, width="stretch")
         else:
             st.caption("No class information found in the feedback log.")
 
@@ -968,7 +978,7 @@ else:
                 data=export_df.to_csv(index=False),
                 file_name="feedback_export_dataset_ready.csv",
                 mime="text/csv",
-                use_container_width=True,
+                width="stretch",
             )
 
 
@@ -997,7 +1007,7 @@ with st.container(border=True):
         st.info("No analyses run yet this session.")
     else:
         st.markdown('<div class="ds-history-wrap">', unsafe_allow_html=True)
-        st.dataframe(history_df, use_container_width=True, hide_index=True)
+        st.dataframe(history_df, width="stretch", hide_index=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
 
@@ -1009,7 +1019,7 @@ with st.container(border=True):
                 st.markdown("**Analyzed locations** (manually entered coordinates only)")
                 fig = render_map_figure(loc_df)
                 if fig is not None:
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, width="stretch")
 st.markdown("</div>", unsafe_allow_html=True)  # close #history section
 
 
