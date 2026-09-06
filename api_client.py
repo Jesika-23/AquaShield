@@ -13,7 +13,7 @@ import requests
 from PIL import Image
 
 
-BACKEND_URL = os.environ.get("AQUASHIELD_BACKEND_URL", "https://aquashield-backend-59kl.onrender.com")
+BACKEND_URL = os.environ.get("AQUASHIELD_BACKEND_URL", "http://localhost:8000")
 
 
 def detect_via_backend(pil_image: Image.Image, filename: str, conf_threshold: float = 0.25, timeout: int = 90) -> dict:
