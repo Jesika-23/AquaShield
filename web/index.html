@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AquaShield — Detection</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 20px;
+      background: #0b1220;
+      color: #e6edf3;
+    }
+    h1 {
+      margin-top: 0;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .upload-section {
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 16px;
+      background: #0d1117;
+      margin-bottom: 20px;
+    }
+    input[type="file"] {
+      margin-top: 8px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px solid #30363d;
+      background: #1f6feb;
+      color: white;
+      cursor: pointer;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .status {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    .error {
+      color: #ff7b72;
+    }
+    .results {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    .image-box img {
+      max-width: 100%;
+      border-radius: 8px;
+      border: 1px solid #30363d;
+    }
+    .detections {
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 12px;
+      background: #0d1117;
+    }
+    .detections h3 {
+      margin-top: 0;
+    }
+    ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+    li {
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>AquaShield — Sonar Object Detection</h1>
+
+    <div class="upload-section">
+      <label for="imageInput"><strong>Upload sonar image:</strong></label><br />
+      <input type="file" id="imageInput" accept="image/*" />
+      <br />
+      <label for="confThreshold"><strong>Confidence threshold:</strong></label>
+      <input type="number" id="confThreshold" value="0.25" step="0.05" min="0" max="1" style="width:60px; margin-left:8px;" />
+      <br />
+      <button id="detectBtn">Detect Objects</button>
+      <div id="status" class="status"></div>
+    </div>
+
+    <div class="results" id="results" style="display:none;">
+      <div class="image-box">
+        <h3>Annotated Image</h3>
+        <img id="annotatedImage" alt="Annotated detection result" />
+      </div>
+
+      <div class="detections">
+        <h3>Detections</h3>
+        <ul id="detectionsList"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = "http://localhost:8000";
+
+    const imageInput = document.getElementById("imageInput");
+    const confThresholdInput = document.getElementById("confThreshold");
+    const detectBtn = document.getElementById("detectBtn");
+    const statusEl = document.getElementById("status");
+    const resultsEl = document.getElementById("results");
+    const annotatedImageEl = document.getElementById("annotatedImage");
+    const detectionsListEl = document.getElementById("detectionsList");
+
+    function setStatus(text, isError = false) {
+      statusEl.textContent = text || "";
+      statusEl.className = "status" + (isError ? " error" : "");
+    }
+
+    async function handleDetect() {
+      const file = imageInput.files && imageInput.files[0];
+      if (!file) {
+        setStatus("Please select an image file.", true);
+        return;
+      }
+
+      const confThreshold = parseFloat(confThresholdInput.value) || 0.25;
+
+      setStatus("Sending image to backend...");
+      detectBtn.disabled = true;
+      resultsEl.style.display = "none";
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("conf_threshold", String(confThreshold));
+
+      try {
+        const res = await fetch(`${API_BASE}/detect`, {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`Detection failed: ${res.status} ${text}`);
+        }
+
+        const data = await res.json();
+
+        // Show annotated image from backend-saved file
+        // We'll construct a URL to the file if you expose outputs via static files later.
+        // For now, we just show detections; image path is data.annotated_image_path.
+        annotatedImageEl.src = ""; // no direct image yet unless we serve outputs
+
+        // Show detections
+        detectionsListEl.innerHTML = "";
+        if (!data.detections || data.detections.length === 0) {
+          detectionsListEl.innerHTML = "<li>No objects detected.</li>";
+        } else {
+          data.detections.forEach((d) => {
+            const li = document.createElement("li");
+            const confPct = (d.confidence * 100).toFixed(1);
+            const bbox = `[${d.bbox.x1}, ${d.bbox.y1}, ${d.bbox.x2}, ${d.bbox.y2}]`;
+            li.textContent = `${d.class_name} — ${confPct}% — bbox: ${bbox}`;
+            detectionsListEl.appendChild(li);
+          });
+        }
+
+        resultsEl.style.display = "grid";
+        setStatus(`Detected ${data.detections.length} object(s) in ${data.inference_time_ms.toFixed(1)} ms.`);
+      } catch (err) {
+        setStatus(err?.message || "Detection failed.", true);
+      } finally {
+        detectBtn.disabled = false;
+      }
+    }
+
+    detectBtn.addEventListener("click", handleDetect);
+  </script>
+</body>
+</html>

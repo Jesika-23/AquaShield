@@ -3,3 +3,4 @@ timestamp,image_filename,class_id,displayed_class,confidence,bbox,feedback,latit
 2026-08-29 18:10:42,000002_jpg.rf.bee0e8fc28627c80a1ab1e7389701a0f.jpg,0,Aircraft,0.8338,"[170.9, 196.2, 475.7, 491.5]",Correct,Location not provided,Location not provided
 2026-08-30 12:38:56,test4.jpg,3,Ship,0.4423,"[77.3, 4.3, 455.7, 221.5]",Correct,Location not provided,Location not provided
 2026-08-30 12:42:09,ship_wreck.jpg,3,Ship,0.6031,"[181.2, 164.6, 314.1, 234.4]",Correct,Location not provided,Location not provided
+2026-09-06 10:57:18,test3.jpg,3,Ship,0.8998,"(78.8, 139.8, 384.9, 263.3)",Correct,Location not provided,Location not provided
