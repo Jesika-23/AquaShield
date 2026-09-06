@@ -7,7 +7,9 @@ product-grade marine-surveillance UI while all inference stays in Python.
 """
 
 
+from api_client import detect_via_backend
 from pathlib import Path
+
 
 
 import pandas as pd
@@ -15,7 +17,8 @@ import streamlit as st
 from PIL import Image, UnidentifiedImageError
 
 
-from utils.inference import load_model, run_inference, detect_visual_anomalies
+
+from utils.inference import detect_visual_anomalies
 from utils.report import build_text_report
 from utils.feedback import save_feedback, FEEDBACK_CSV_PATH, export_dataset_ready_csv
 from utils.quality import assess_image_quality
@@ -25,13 +28,16 @@ from utils.history import add_history_entry, get_history_df, history_count
 import numpy as np
 
 
+
 try:
     from utils.map_view import build_location_dataframe, render_map_figure, PLOTLY_AVAILABLE
 except ImportError:
     PLOTLY_AVAILABLE = False
 
 
+
 BASE_DIR = Path(__file__).resolve().parent
+
 
 
 MODEL_METRICS = {
@@ -42,6 +48,7 @@ MODEL_METRICS = {
     "train_images": 402,
     "val_images": 110,
 }
+
 
 
 CLASSES = [
@@ -56,6 +63,7 @@ CLASSES = [
 ]
 
 
+
 # ------------------------------------------------------------------ #
 # Page config + CSS injection
 # ------------------------------------------------------------------ #
@@ -65,6 +73,7 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
 
 
 
@@ -81,7 +90,9 @@ def inject_css():
 
 
 
+
 inject_css()
+
 
 
 # ------------------------------------------------------------------ #
@@ -94,7 +105,7 @@ inject_css()
 # ------------------------------------------------------------------ #
 with st.sidebar:
     st.markdown('<div class="ds-sidebar-title">Model Settings</div>', unsafe_allow_html=True)
-    st.caption("YOLO11n &middot; 4 trained classes &middot; local inference", unsafe_allow_html=True)
+    st.caption("YOLO11n &middot; 4 trained classes &middot; backend inference", unsafe_allow_html=True)
     conf_threshold = st.slider(
         "Confidence threshold", min_value=0.05, max_value=0.95, value=0.50, step=0.05,
         key="sb_conf_threshold",
@@ -106,9 +117,11 @@ with st.sidebar:
     )
 
 
+
     st.markdown('<div class="ds-sidebar-title">Analysis Settings</div>', unsafe_allow_html=True)
     show_shadow = st.checkbox("Run acoustic-shadow analysis (prototype heuristic)", value=True)
     show_priority = st.checkbox("Run explainable priority scoring", value=True)
+
 
 
     st.markdown('<div class="ds-sidebar-title">Location</div>', unsafe_allow_html=True)
@@ -121,6 +134,7 @@ with st.sidebar:
     st.session_state["ds_longitude"] = ds_longitude
 
 
+
     st.markdown('<div class="ds-sidebar-title">System Status</div>', unsafe_allow_html=True)
     st.markdown(
         '<span class="ds-status-badge good">&#9679; MODEL ONLINE</span>',
@@ -128,6 +142,7 @@ with st.sidebar:
     )
     st.caption(f"mAP50 {MODEL_METRICS['map50']*100:.1f}% &middot; Precision {MODEL_METRICS['precision']*100:.1f}%", unsafe_allow_html=True)
     st.caption(f"Session history: {history_count()} analyses logged")
+
 
 
 # ------------------------------------------------------------------ #
@@ -154,6 +169,7 @@ st.markdown(
 )
 
 
+
 # ------------------------------------------------------------------ #
 # Compact header (replaces the old hero)
 # ------------------------------------------------------------------ #
@@ -178,6 +194,7 @@ st.markdown(
 
 
 
+
 # ------------------------------------------------------------------ #
 # Compact detection class strip (replaces the 4 large cards)
 # ------------------------------------------------------------------ #
@@ -195,6 +212,7 @@ for c in CLASSES:
 badges_html += "</div>"
 st.markdown(badges_html, unsafe_allow_html=True)
 st.markdown("</div>", unsafe_allow_html=True)
+
 
 
 # ------------------------------------------------------------------ #
@@ -237,6 +255,7 @@ st.markdown(
 st.markdown("</div>", unsafe_allow_html=True)
 
 
+
 # ------------------------------------------------------------------ #
 # Upload + Analyze
 # ------------------------------------------------------------------ #
@@ -253,7 +272,9 @@ st.markdown(
 )
 
 
+
 left, right = st.columns([1, 1], gap="large")
+
 
 
 with left:
@@ -270,6 +291,7 @@ with left:
         )
 
 
+
     with st.container(border=True):
         st.markdown("**Reference / Baseline Sonar Image**")
         st.caption(
@@ -284,6 +306,7 @@ with left:
         )
 
 
+
 with right:
     with st.container(border=True):
         st.markdown("**Live status**")
@@ -294,16 +317,10 @@ with right:
             status_box.success(f"Loaded: {uploaded_file.name}")
 
 
+
 # Run inference on click, persist results across reruns
 if analyze_clicked and uploaded_file is not None:
     with st.spinner("Running YOLO11n inference on sonar frame..."):
-        try:
-            model = load_model()
-        except FileNotFoundError as e:
-            st.error(str(e))
-            st.stop()
-
-
         try:
             pil_image = Image.open(uploaded_file)
             pil_image.load()  # force full decode now so a corrupt/truncated
@@ -321,14 +338,13 @@ if analyze_clicked and uploaded_file is not None:
             )
             st.stop()
 
-
         try:
-            result = run_inference(model, pil_image, conf_threshold=conf_threshold)
+            # Call backend instead of local inference
+            result = detect_via_backend(pil_image, uploaded_file.name, conf_threshold=conf_threshold)
             st.session_state["ds_result"] = result
             st.session_state["ds_file_name"] = uploaded_file.name
             st.session_state["ds_original"] = pil_image
             st.session_state["ds_conf"] = conf_threshold
-
 
             # -------------------------------------------------- #
             # NEW: Image Quality Assessment (prototype heuristic layer)
@@ -337,7 +353,6 @@ if analyze_clicked and uploaded_file is not None:
             quality_report = assess_image_quality(rgb_array)
             st.session_state["ds_quality"] = quality_report
 
-
             # -------------------------------------------------- #
             # NEW: Optional prototype preprocessing + comparison pass
             # -------------------------------------------------- #
@@ -345,13 +360,13 @@ if analyze_clicked and uploaded_file is not None:
                 from utils.preprocess import enhance_image
                 enhanced_rgb = enhance_image(rgb_array, do_denoise=True, do_clahe=True)
                 enhanced_pil = Image.fromarray(enhanced_rgb)
-                enhanced_result = run_inference(model, enhanced_pil, conf_threshold=conf_threshold)
+                # Enhanced pass also via backend
+                enhanced_result = detect_via_backend(enhanced_pil, uploaded_file.name + "_enhanced", conf_threshold=conf_threshold)
                 st.session_state["ds_enhanced_image"] = enhanced_pil
                 st.session_state["ds_enhanced_result"] = enhanced_result
             else:
                 st.session_state["ds_enhanced_image"] = None
                 st.session_state["ds_enhanced_result"] = None
-
 
             # -------------------------------------------------- #
             # NEW: Acoustic-shadow analysis (prototype heuristic layer)
@@ -361,7 +376,6 @@ if analyze_clicked and uploaded_file is not None:
             else:
                 shadow_results = []
             st.session_state["ds_shadows"] = shadow_results
-
 
             # -------------------------------------------------- #
             # NEW: Explainable priority scoring per detection
@@ -381,11 +395,16 @@ if analyze_clicked and uploaded_file is not None:
                         )
                     )
             st.session_state["ds_priorities"] = priority_results
+        except RuntimeError as exc:
+            # Backend unreachable or failed
+            st.error(f"⚠️ {exc}")
+            st.stop()
         except Exception:
             st.error(
                 "Something went wrong while analyzing this image. "
                 "Please try again or use a different file."
             )
+
 
 
         # ---------------------------------------------------------- #
@@ -418,6 +437,7 @@ if analyze_clicked and uploaded_file is not None:
             st.session_state["ds_anomaly_result"] = None
 
 
+
         # ---------------------------------------------------------- #
         # NEW: fold anomaly presence into priority scores now that the
         # anomaly check (if any) has run, then log this run to session
@@ -426,6 +446,7 @@ if analyze_clicked and uploaded_file is not None:
         anomaly_res = st.session_state.get("ds_anomaly_result")
         anomaly_present = bool(anomaly_res and anomaly_res.get("reliable") and anomaly_res.get("count", 0) > 0)
         anomaly_count_for_history = anomaly_res["count"] if (anomaly_res and anomaly_res.get("reliable")) else None
+
 
 
         quality_report = st.session_state.get("ds_quality")
@@ -447,10 +468,12 @@ if analyze_clicked and uploaded_file is not None:
         st.session_state["ds_priorities"] = recomputed_priorities
 
 
+
         top_priority = "N/A"
         if recomputed_priorities:
             order = {"HIGH": 3, "REQUIRES HUMAN VERIFICATION": 3, "MEDIUM": 2, "LOW": 1}
             top_priority = max(recomputed_priorities, key=lambda p: order.get(p.priority, 0)).priority
+
 
 
         add_history_entry(
@@ -464,12 +487,14 @@ if analyze_clicked and uploaded_file is not None:
         )
 
 
+
 # ------------------------------------------------------------------ #
 # Results
 # ------------------------------------------------------------------ #
 if "ds_result" in st.session_state:
     result = st.session_state["ds_result"]
     detections = result["detections"]
+
 
 
     st.markdown("<div style='height:36px'></div>", unsafe_allow_html=True)
@@ -484,6 +509,7 @@ if "ds_result" in st.session_state:
         """,
         unsafe_allow_html=True,
     )
+
 
 
     # ---------------------------------------------------------------- #
@@ -517,7 +543,9 @@ if "ds_result" in st.session_state:
                 st.markdown(f'<div class="ds-warning-line">&#9888; {w}</div>', unsafe_allow_html=True)
 
 
+
     st.markdown("<div style='height:20px'></div>", unsafe_allow_html=True)
+
 
 
     img_col1, img_col2 = st.columns(2, gap="large")
@@ -527,6 +555,7 @@ if "ds_result" in st.session_state:
     with img_col2:
         with st.container(border=True):
             st.image(result["annotated_image"], use_container_width=True, caption="AI-detected objects")
+
 
 
     # ---------------------------------------------------------------- #
@@ -549,6 +578,7 @@ if "ds_result" in st.session_state:
                          caption=f"Enhanced — {len(enhanced_result['detections'])} detection(s)")
 
 
+
     # ---------------------------------------------------------------- #
     # OPTIONAL SECOND LAYER RESULTS -- classical CV visual anomaly check
     # Only shown when a reference/baseline image was uploaded this run.
@@ -562,6 +592,7 @@ if "ds_result" in st.session_state:
             st.caption("Classical CV heuristic \u2014 not a trained AI detection.")
 
 
+
             if not anomaly_result["reliable"]:
                 st.warning(anomaly_result["warning"])
             else:
@@ -572,6 +603,7 @@ if "ds_result" in st.session_state:
                 )
                 if anomaly_result["count"] == 0:
                     st.caption("No significant visual changes detected versus the reference image.")
+
 
 
     # ---------------------------------------------------------------- #
@@ -629,10 +661,13 @@ if "ds_result" in st.session_state:
                 )
 
 
+
     st.markdown("<div style='height:20px'></div>", unsafe_allow_html=True)
 
 
+
     res_col1, res_col2 = st.columns([1.3, 1], gap="large")
+
 
 
     with res_col1:
@@ -681,6 +716,7 @@ if "ds_result" in st.session_state:
                 current_file_name = st.session_state["ds_file_name"]
 
 
+
                 for idx, det in enumerate(detections):
                     css_cls = det["class"].lower()
                     chip = chip_map.get(css_cls, "#5EEAD4")
@@ -695,6 +731,7 @@ if "ds_result" in st.session_state:
                     st.markdown(row_html, unsafe_allow_html=True)
 
 
+
                     feedback_key = f"fb_{current_file_name}_{idx}"
                     feedback_choice = st.radio(
                         "Is this detection correct?",
@@ -704,6 +741,7 @@ if "ds_result" in st.session_state:
                         index=None,
                         label_visibility="collapsed",
                     )
+
 
 
                     saved_flag_key = f"{feedback_key}_saved_as"
@@ -721,14 +759,17 @@ if "ds_result" in st.session_state:
                         st.session_state[saved_flag_key] = feedback_choice
 
 
+
                     if feedback_choice is not None:
                         st.caption(f"Feedback recorded: {feedback_choice}")
+
 
 
                 st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
                 st.caption(
                     "Human feedback is stored for future model improvement and retraining."
                 )
+
 
 
     with res_col2:
@@ -747,12 +788,14 @@ if "ds_result" in st.session_state:
                 st.caption("Coordinates: Location not provided")
 
 
+
             anomaly_result_for_report = st.session_state.get("ds_anomaly_result")
             report_anomaly_count = (
                 anomaly_result_for_report["count"]
                 if anomaly_result_for_report is not None and anomaly_result_for_report["reliable"]
                 else None
             )
+
 
 
             report_text = build_text_report(
@@ -775,7 +818,9 @@ if "ds_result" in st.session_state:
             )
 
 
+
 st.markdown("</div>", unsafe_allow_html=True)  # close #upload section
+
 
 
 # ------------------------------------------------------------------ #
@@ -795,8 +840,10 @@ st.markdown(
 )
 
 
+
 feedback_df = None
 feedback_read_error = False
+
 
 
 if FEEDBACK_CSV_PATH.exists():
@@ -806,6 +853,7 @@ if FEEDBACK_CSV_PATH.exists():
             feedback_df = None
     except Exception:
         feedback_read_error = True
+
 
 
 if feedback_read_error:
@@ -824,11 +872,13 @@ else:
         unsure_n = int(counts.get("Unsure", 0))
 
 
+
         fi1, fi2, fi3, fi4 = st.columns(4)
         fi1.metric("Total feedback entries", total_entries)
         fi2.metric("Correct", correct_n)
         fi3.metric("Incorrect", incorrect_n)
         fi4.metric("Unsure", unsure_n)
+
 
 
         decided_n = correct_n + incorrect_n
@@ -839,9 +889,10 @@ else:
             st.metric("Positive-feedback rate", "N/A")
         st.caption(
             "Prototype feedback statistic based on human reviewer input -- "
-            "not a measure of model accuracy. \"Unsure\" entries are excluded "
+            'not a measure of model accuracy. "Unsure" entries are excluded '
             "from this rate."
         )
+
 
 
         st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
@@ -855,6 +906,7 @@ else:
             st.dataframe(class_breakdown, use_container_width=True)
         else:
             st.caption("No class information found in the feedback log.")
+
 
 
         # ------------------------------------------------------ #
@@ -884,7 +936,9 @@ else:
             )
 
 
+
 st.markdown("</div>", unsafe_allow_html=True)  # close #feedback-insights section
+
 
 
 # ------------------------------------------------------------------ #
@@ -911,6 +965,7 @@ with st.container(border=True):
         st.markdown('</div>', unsafe_allow_html=True)
 
 
+
         if PLOTLY_AVAILABLE:
             loc_df = build_location_dataframe(history_df)
             if not loc_df.empty:
@@ -920,6 +975,7 @@ with st.container(border=True):
                 if fig is not None:
                     st.plotly_chart(fig, use_container_width=True)
 st.markdown("</div>", unsafe_allow_html=True)  # close #history section
+
 
 
 # ------------------------------------------------------------------ #
