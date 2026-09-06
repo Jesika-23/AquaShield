@@ -230,21 +230,6 @@ h5 {
     color: var(--teal-bright);
 }
 
-/* Active page in the Streamlit query-param navigation */
-.ds-nav .links a.active {
-    color: var(--teal-bright);
-    text-shadow: 0 0 10px rgba(103, 232, 249, 0.35);
-}
-
-.ds-nav .links a.active::after {
-    content: "";
-    display: block;
-    height: 2px;
-    margin-top: 5px;
-    background: var(--teal-bright);
-    box-shadow: 0 0 8px rgba(103, 232, 249, 0.55);
-}
-
 .ds-nav .status {
     display: flex;
     align-items: center;
