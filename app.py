@@ -162,7 +162,10 @@ st.markdown(
         <a href="#feedback-insights">Feedback</a>
         <a href="#history">History</a>
       </div>
-      <div class="status"><span>&#9679;</span> MODEL ONLINE -- YOLO11n</div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span class="ds-pill">PS <b>26057</b></span>
+        <div class="status"><span>&#9679;</span> MODEL ONLINE -- YOLO11n</div>
+      </div>
     </div>
     """,
     unsafe_allow_html=True,
@@ -177,6 +180,7 @@ st.markdown(
     """
     <div class="ds-header" id="home">
       <div class="ds-header-copy">
+        <div class="eyebrow">AI Sonar Intelligence &middot; Decision Support</div>
         <h1>AquaShield</h1>
         <p>
           YOLO11n object detection for sonar imagery &mdash; aircraft, fish, reef
@@ -186,6 +190,7 @@ st.markdown(
       <div class="ds-header-status">
         <span class="ds-status-badge good">&#9679; MODEL ONLINE</span>
         <span class="ds-header-meta">YOLO11n &middot; mAP50 51.5%</span>
+        <span class="ds-header-meta">Backend &middot; FastAPI /detect</span>
       </div>
     </div>
     """,
@@ -310,11 +315,28 @@ with left:
 with right:
     with st.container(border=True):
         st.markdown("**Live status**")
-        status_box = st.empty()
         if uploaded_file is None:
-            status_box.info("Awaiting sonar image upload.")
+            st.markdown(
+                """
+                <div class="status-panel waiting">
+                    <div class="status-big">&#9673;</div>
+                    <div class="status-title">AWAITING IMAGE</div>
+                    <div class="status-text">Upload a sonar scan on the left, then press Analyze.</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
         else:
-            status_box.success(f"Loaded: {uploaded_file.name}")
+            st.markdown(
+                f"""
+                <div class="status-panel ready">
+                    <div class="status-big">&#9679;</div>
+                    <div class="status-title">READY TO ANALYZE</div>
+                    <div class="status-text">{uploaded_file.name}</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
 
 
@@ -505,6 +527,19 @@ if "ds_result" in st.session_state:
           <h2>Detection output &mdash; {st.session_state['ds_file_name']}</h2>
           <p>{len(detections)} object(s) detected in {result['inference_time_ms']:.0f} ms
           at confidence &ge; {st.session_state['ds_conf']:.2f}.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    top_conf_display = f"{max((d['confidence'] for d in detections), default=0) * 100:.1f}%" if detections else "--"
+    st.markdown(
+        f"""
+        <div class="result-summary">
+          <div><span>Objects Found</span><strong>{len(detections)}</strong></div>
+          <div><span>Top Confidence</span><strong>{top_conf_display}</strong></div>
+          <div><span>Inference Time</span><strong>{result['inference_time_ms']:.0f} ms</strong></div>
+          <div><span>Threshold</span><strong>{st.session_state['ds_conf']:.2f}</strong></div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -783,9 +818,10 @@ if "ds_result" in st.session_state:
             lat_val = st.session_state.get("ds_latitude", "")
             lon_val = st.session_state.get("ds_longitude", "")
             if lat_val.strip() and lon_val.strip():
-                st.caption(f"Coordinates: {lat_val.strip()}, {lon_val.strip()}")
+                coord_text = f"&#128205; {lat_val.strip()}, {lon_val.strip()}"
             else:
-                st.caption("Coordinates: Location not provided")
+                coord_text = "&#128205; Location not provided"
+            st.markdown(f'<div class="report-coord-line">{coord_text}</div>', unsafe_allow_html=True)
 
 
 
