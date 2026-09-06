@@ -16,7 +16,7 @@ from PIL import Image
 BACKEND_URL = os.environ.get("AQUASHIELD_BACKEND_URL", "https://aquashield-backend-59kl.onrender.com")
 
 
-def detect_via_backend(pil_image: Image.Image, filename: str, conf_threshold: float = 0.25, timeout: int = 30) -> dict:
+def detect_via_backend(pil_image: Image.Image, filename: str, conf_threshold: float = 0.25, timeout: int = 90) -> dict:
     buf = io.BytesIO()
     pil_image.convert("RGB").save(buf, format="JPEG")
     buf.seek(0)
