@@ -3,9 +3,11 @@ utils/map_view.py
 ------------------
 Optional geospatial visualization for AquaShield.
 
+
 Shows ONLY coordinates the user manually entered — nothing is ever invented,
 geocoded, or looked up. If no valid lat/lon history exists, the caller should
 skip rendering this section entirely (see app.py wiring notes).
+
 
 Dependency: plotly (not currently in requirements.txt). Install with:
     pip install plotly
@@ -14,14 +16,17 @@ ImportError and the calling code in app.py should catch that and simply hide
 the map section (see wiring instructions).
 """
 
+
 from typing import List, Dict
 import pandas as pd
+
 
 try:
     import plotly.graph_objects as go
     PLOTLY_AVAILABLE = True
 except ImportError:
     PLOTLY_AVAILABLE = False
+
 
 
 PRIORITY_COLORS = {
@@ -33,12 +38,14 @@ PRIORITY_COLORS = {
 }
 
 
+
 def _parse_coord(value: str):
     try:
         f = float(str(value).strip())
         return f
     except (ValueError, TypeError):
         return None
+
 
 
 def build_location_dataframe(history_df: pd.DataFrame) -> pd.DataFrame:
@@ -48,6 +55,7 @@ def build_location_dataframe(history_df: pd.DataFrame) -> pd.DataFrame:
     """
     if history_df.empty:
         return pd.DataFrame(columns=["lat", "lon", "image_name", "priority", "timestamp"])
+
 
     rows = []
     for _, r in history_df.iterrows():
@@ -67,9 +75,10 @@ def build_location_dataframe(history_df: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+
 def render_map_figure(locations_df: pd.DataFrame):
     """
-    Build a plotly Scattermapbox figure colored by priority.
+    Build a plotly Scattermap figure colored by priority.
     Returns None if plotly isn't installed or there's nothing to plot.
     Caller (app.py) is responsible for st.plotly_chart(...) and for
     checking PLOTLY_AVAILABLE before calling this.
@@ -77,9 +86,10 @@ def render_map_figure(locations_df: pd.DataFrame):
     if not PLOTLY_AVAILABLE or locations_df.empty:
         return None
 
+
     fig = go.Figure()
     for priority, group in locations_df.groupby("priority"):
-        fig.add_trace(go.Scattermapbox(
+        fig.add_trace(go.Scattermap(
             lat=group["lat"],
             lon=group["lon"],
             mode="markers",
@@ -91,8 +101,10 @@ def render_map_figure(locations_df: pd.DataFrame):
             name=priority,
         ))
 
+
     center_lat = locations_df["lat"].mean()
     center_lon = locations_df["lon"].mean()
+
 
     fig.update_layout(
         mapbox=dict(
