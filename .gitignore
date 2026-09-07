@@ -17,3 +17,7 @@ data.yaml.txt
 requirements-lock.txt
 sample_submission.csv
 feedback_export_dataset_ready.csv
+# Backend/frontend split
+.venv/
+__pycache__/
+*.pyc

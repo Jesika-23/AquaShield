@@ -3,3 +3,7 @@ streamlit
 pandas
 Pillow
 opencv-python-headless
+fastapi
+uvicorn[standard]
+pydantic
+python-multipart
