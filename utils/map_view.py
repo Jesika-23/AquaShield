@@ -107,7 +107,7 @@ def render_map_figure(locations_df: pd.DataFrame):
 
 
     fig.update_layout(
-        mapbox=dict(
+        map=dict(
             style="carto-darkmatter",
             center=dict(lat=center_lat, lon=center_lon),
             zoom=4,
