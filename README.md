@@ -20,6 +20,8 @@ Try the current Streamlit prototype:
 
 Source code: [github.com/Jesika-23/Hackcult_AquaShield](https://github.com/Jesika-23/Hackcult_AquaShield)
 
+## Prototype Dashboard
+
 <img width="1917" height="872" alt="image" src="https://github.com/user-attachments/assets/b5eacf53-ce5b-4f98-9a58-9abdb0504da3" />
 
 
