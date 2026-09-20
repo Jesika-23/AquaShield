@@ -18,6 +18,8 @@ Try the current Streamlit prototype:
 
 [Open AquaShield Live Demo](https://jesika-23-aquashield-app-bnkxiv.streamlit.app/)
 
+Source code: [github.com/Jesika-23/Hackcult_AquaShield](https://github.com/Jesika-23/Hackcult_AquaShield)
+
 <!--
 Add screenshots here once available, for example:
 ![AquaShield detection results](text/images/screenshot-detection.png)
@@ -404,7 +406,7 @@ They should not be interpreted as production-level performance or as final marin
 ## 📁 Project Structure
 
 ```text
-AquaShield/
+Hackcult_AquaShield/
 │
 ├── app.py
 ├── requirements.txt
@@ -446,8 +448,8 @@ AquaShield/
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/jesika-23/aquashield.git
-cd aquashield
+git clone https://github.com/Jesika-23/Hackcult_AquaShield.git
+cd Hackcult_AquaShield
 ```
 
 ### 2. Create a Virtual Environment
