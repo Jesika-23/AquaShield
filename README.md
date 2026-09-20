@@ -1,59 +1,109 @@
 # 🌊 AquaShield
 
-## AI-Powered Underwater Object Detection & Monitoring System
+## AI-Powered Sonar-Style Image Analysis Prototype
 
-AquaShield is an AI-powered computer vision prototype designed to analyze underwater/sonar-style images and automatically detect objects using a trained YOLO object detection model.
+**Smart India Hackathon 2026 | Problem Statement SIH26057 | Team Hackcult | R.M.D. Engineering College**
 
-The system combines AI-based object detection with image-quality assessment, confidence filtering, priority scoring, acoustic-shadow cues, reporting, detection history, feedback logging, and map support to provide a complete prototype workflow for underwater image analysis.
+AquaShield is a research and educational prototype for AI-assisted analysis of underwater and sonar-style images.
+
+The current system uses a YOLO object-detection model to identify objects in uploaded images and presents the results through a Streamlit web application. It combines object detection, confidence filtering, image-quality assessment, prototype priority scoring, shadow-related heuristic cues, reporting, location support, history, and feedback logging.
+
+AquaShield demonstrates how AI can support future marine-debris monitoring and seabed-survey workflows. It is not a production-ready or safety-certified navigation system.
 
 ---
 
 ## 🚀 Live Demo
 
-**Try AquaShield:**
+Try the current Streamlit prototype:
 
-https://jesika-23-aquashield-app-bnkxiv.streamlit.app/
+[Open AquaShield Live Demo](https://jesika-23-aquashield-app-bnkxiv.streamlit.app/)
 
----
-
-## 📌 Project Overview
-
-Underwater environments can contain objects that are difficult and time-consuming to identify manually, particularly when large numbers of images need to be reviewed.
-
-AquaShield provides a simple AI-assisted interface where users can upload an underwater/sonar-style image and obtain detection and analysis results.
-
-The application allows users to:
-
-- 📤 Upload an underwater image
-- 🤖 Analyze the image using a trained YOLO model
-- 🎚️ Adjust the confidence threshold
-- 🖼️ View bounding boxes around detected objects
-- 📊 View object classes and confidence scores
-- 🔍 Assess image quality
-- 🧭 Review detection priority
-- 🌑 Examine acoustic-shadow cues
-- 📝 Generate a structured report
-- 🗺️ Add location information
-- 📜 Review detection history
-- 💬 Provide feedback on detections
-
-AquaShield is developed as a **research and educational prototype** demonstrating how AI-based computer vision can support underwater monitoring and image-review workflows.
+<!--
+Add screenshots here once available, for example:
+![AquaShield detection results](text/images/screenshot-detection.png)
+![AquaShield report and priority view](text/images/screenshot-report.png)
+-->
 
 ---
 
-# 🎯 Key Features
+## 📌 Prototype Status
 
-## 1. 📤 Image Upload
+**Status: Functional Streamlit Prototype — Approximately 40% of Planned System**
 
-Users can upload an underwater or sonar-style image through the application.
+The current public application demonstrates the core AI-assisted image-analysis workflow.
+
+### Completed in Current Prototype
+
+- Upload underwater or sonar-style images
+- Image preprocessing using OpenCV
+- YOLO11n object detection
+- Bounding-box visualization
+- Confidence-threshold filtering
+- Image-quality assessment
+- Prototype priority scoring
+- Shadow-related heuristic analysis
+- Structured report generation
+- Manual map and location support
+- Detection history
+- Human feedback logging
+- Deployment as an integrated Streamlit application on Streamlit Community Cloud
+
+### Planned Future Extensions
+
+- Training on real, labeled marine-debris sonar datasets
+- Marine-debris-specific classes such as ghost nets, plastic debris, wreckage, and seabed hazards
+- Separation into FastAPI backend and Streamlit frontend
+- Dockerized deployment on cloud (for example AWS) and edge infrastructure
+- Real geo-referencing using survey navigation data
+- Debris clustering and prioritized debris maps
+- Navigation-risk and ecological-sensitivity GIS layers
+- ONNX Runtime optimization for lightweight CPU inference
+- Field validation with hydrographic survey agencies, port authorities, and marine-cleanup organizations
+
+The current Streamlit deployment is the integrated prototype being demonstrated. The additional architecture, dataset, and deployment modules are planned future extensions.
+
+---
+
+## 🎯 Project Overview
+
+Marine debris, abandoned fishing gear, plastic waste, wreckage, and other seabed hazards can affect marine ecosystems, fisheries, and navigation safety.
+
+Survey agencies may collect large volumes of side-scan sonar or underwater imagery. Reviewing these images manually is slow, subjective, and difficult to scale.
+
+AquaShield provides an AI-assisted workflow in which users can upload an underwater or sonar-style image and receive object-detection results with supporting analysis.
+
+The project was developed by Team Hackcult from R.M.D. Engineering College for Smart India Hackathon 2026, Problem Statement **SIH26057**: *AI-Powered Automated Underwater Marine Debris and Anomaly Detection Using Side-Scan Sonar Imagery*.
+
+AquaShield is designed as a decision-support prototype. It assists human reviewers and does not replace expert judgment.
+
+---
+
+## 🧠 Problem Statement
+
+Underwater and sonar imagery can contain objects that are difficult and time-consuming to identify manually.
+
+Current review processes can be:
+
+- Slow when large numbers of images must be inspected
+- Subjective across different analysts
+- Difficult to scale for large seabed survey areas
+- Limited in their ability to prioritize detections for further review
+
+AquaShield explores how AI-based object detection and supporting analysis can help reviewers identify potential objects faster and organize their attention more effectively.
+
+---
+
+## ✨ Key Features
+
+### 1. 📤 Image Upload
+
+Users can upload an underwater or sonar-style image through the Streamlit application.
 
 The uploaded image becomes the input for the AI detection and analysis pipeline.
 
----
+### 2. 🤖 AI Object Detection
 
-## 2. 🤖 AI Object Detection
-
-AquaShield uses a trained **YOLO object detection model** to analyze uploaded images.
+AquaShield uses a trained YOLO11n object-detection model to analyze uploaded images.
 
 For each detected object, the model provides:
 
@@ -61,76 +111,73 @@ For each detected object, the model provides:
 - Bounding box
 - Confidence score
 
-### Supported Detection Classes
+#### Prototype Detection Classes
 
-| Class ID | Object |
-|----------|--------|
+| Class ID | Prototype Class |
+|---:|---|
 | 0 | ✈️ Aircraft |
 | 1 | 🐟 Fish |
 | 2 | 🪸 Reef |
 | 3 | 🚢 Ship |
 
----
+> **Note:** These are prototype or proxy classes used to demonstrate the object-detection pipeline. They are not final marine-debris categories. Future versions will require training on labeled marine-debris and real sonar datasets for classes such as ghost nets, plastic debris, wreckage, and other seabed hazards.
 
-## 3. 🎚️ Confidence Threshold
+### 3. 🎚️ Confidence Threshold
 
-The application provides a confidence-threshold control that allows the user to decide how confident the AI prediction must be before it is displayed.
+The application includes a confidence-threshold control.
 
-**Lower threshold:**  
-A lower threshold can display more possible detections, including weaker predictions.
+This allows the user to select how confident the AI prediction must be before it is displayed.
 
-**Higher threshold:**  
-A higher threshold displays fewer but generally more confident predictions.
+- **Lower threshold:** Displays more possible detections, including weaker predictions.
+- **Higher threshold:** Displays fewer detections but generally with greater confidence.
 
-The current default threshold is **0.50**.
+The default threshold is **0.50**.
 
-Users can still adjust the threshold according to the image and analysis requirement.
+Users can adjust the threshold based on image quality and analysis requirements.
 
----
-
-## 4. 🖼️ Visual Detection Results
+### 4. 🖼️ Visual Detection Results
 
 After analysis, AquaShield displays the processed image with bounding boxes around detected objects.
 
-The visual results help users compare the AI predictions with the actual image.
+The visual result helps users compare AI predictions with the original image.
 
 Detection information can include:
 
 - Object class
 - Confidence score
-- Bounding-box location
+- Bounding-box position
+- Supporting analysis information
 
----
+### 5. 📊 Detection Analysis
 
-## 5. 📊 Detection Analysis
+AquaShield provides supporting information beyond bounding boxes.
 
-AquaShield provides additional information beyond the bounding boxes.
-
-The analysis helps users understand what the model detected and provides supporting information such as:
+The analysis may include:
 
 - Detected object class
-- Confidence
-- Object characteristics
-- Priority information
-- Supporting analysis signals
+- Detection confidence
+- Object size or bounding-box characteristics
+- Prototype priority information
+- Image-quality context
+- Shadow-related heuristic cues
 
-This makes the system an **AI-assisted analysis tool** rather than simply an image-labeling interface.
+This makes the application an AI-assisted analysis prototype rather than only an image-labeling interface.
 
----
-
-## 6. 🔍 Image Quality Assessment
+### 6. 🔍 Image Quality Assessment
 
 The application includes an image-quality assessment component.
 
-Underwater imagery can be affected by factors such as visibility, contrast, noise, and other image conditions.
+Image quality can influence object-detection reliability. Underwater and sonar-style images may be affected by factors such as:
 
-Poor-quality input can affect computer-vision predictions.
+- Low contrast
+- Noise
+- Blur
+- Poor visibility
+- Uneven intensity
 
-AquaShield therefore provides quality-related information alongside the detection results to give the reviewer additional context.
+AquaShield provides quality-related information alongside detections to give reviewers additional context.
 
----
-
-## 7. 🧭 Priority Scoring
+### 7. 🧭 Prototype Priority Scoring
 
 AquaShield includes a prototype priority-scoring layer to help reviewers identify detections that may require additional attention.
 
@@ -141,7 +188,7 @@ Possible priority levels include:
 - 🟡 **MEDIUM**
 - 🟢 **LOW**
 
-The priority explanation can consider multiple signals, including:
+The prototype priority score can consider signals such as:
 
 - Detection confidence
 - Object size
@@ -149,41 +196,38 @@ The priority explanation can consider multiple signals, including:
 - Shadow-related cues
 - Anomaly-related signals
 
-This feature is intended as **decision support** and does not replace human judgment.
+This feature is intended for decision support only and does not replace human review.
 
----
+In a future marine-debris system, priority scoring can be extended using debris size, navigation risk, ecological sensitivity, survey location, and environmental context.
 
-## 8. 🌑 Acoustic-Shadow Analysis
+### 8. 🌑 Shadow-Related Analysis
 
-The application contains a prototype acoustic-shadow analysis component.
+The application contains a prototype shadow-related analysis component.
 
-It estimates shadow-related characteristics around detected objects and uses them as an additional supporting signal.
+It estimates visual characteristics around detected objects and uses them as an additional supporting signal.
 
-> **Important:** This is a heuristic computer-vision approach and is **not a validated sonar-physics model**.
+> **Important:** This component uses heuristic computer-vision logic. It is not a validated sonar-physics or acoustic-shadow model.
 
-The feature demonstrates how secondary visual cues could potentially support underwater object analysis.
+Future work can improve this module using real side-scan sonar data and validated acoustic-shadow models.
 
----
+### 9. 📝 Report Generation
 
-## 9. 📝 Report Generation
+AquaShield includes a reporting module that generates a structured analysis summary.
 
-AquaShield includes a reporting module that generates a structured text summary of the analysis.
-
-The report can include information such as:
+The report can include:
 
 - Image analyzed
 - Detected objects
 - Confidence values
 - Priority information
-- Supporting analysis
+- Image-quality information
+- Supporting analysis results
 
-This makes detection results easier to document and review.
+This makes results easier to document, review, and share.
 
----
+### 10. 🗺️ Map and Location Support
 
-## 10. 🗺️ Map & Location Support
-
-AquaShield contains a map-view component for associating analysis with geographic information.
+AquaShield contains a map-view component for associating an analysis with geographic information.
 
 Users can enter coordinates manually and visualize the corresponding location.
 
@@ -192,20 +236,17 @@ This provides a foundation for future integration with:
 - GPS data
 - Survey missions
 - Autonomous underwater vehicles
-- Monitoring operations
+- Vessel navigation data
 - Geographic detection records
+- Seabed debris maps
 
----
-
-## 11. 📜 Detection History
+### 11. 📜 Detection History
 
 The application includes history functionality for tracking previous analysis activity.
 
-This provides a foundation for reviewing detection results across multiple analysis sessions.
+This creates a foundation for reviewing results across multiple analysis sessions.
 
----
-
-## 12. 💬 Feedback Logging
+### 12. 💬 Feedback Logging
 
 AquaShield includes a feedback mechanism that allows users to review AI detections and provide human feedback.
 
@@ -215,13 +256,13 @@ Feedback is stored in:
 feedback_log.csv
 ```
 
-The feedback log can be used for future analysis, labeling, and model improvement.
+In future versions, feedback can support data labeling, error analysis, and model improvement.
 
 ---
 
-# 🧠 How AquaShield Works
+## 🧠 How AquaShield Works
 
-The overall workflow is:
+The current prototype workflow is:
 
 ```text
 User
@@ -232,26 +273,22 @@ Image Preprocessing
   ↓
 Image Quality Assessment
   ↓
-YOLO AI Model
+YOLO11n Object Detection
   ↓
-Object Detection
+Confidence Filtering (default threshold 0.50)
   ↓
-Confidence Filtering
+Bounding Boxes and Detection Results
   ↓
-Visual Detection Results
+Prototype Priority and Shadow-Related Analysis
   ↓
-Detection Analysis
+Report Generation (optional manual location)
   ↓
-Priority & Supporting Analysis
-  ↓
-Report Generation
-  ↓
-Feedback & Detection History
+Feedback and Detection History
 ```
 
 ---
 
-# 🏗️ System Architecture
+## 🏗️ Current System Architecture
 
 ```text
                     ┌──────────────────────┐
@@ -286,8 +323,9 @@ Feedback & Detection History
                  ┌─────────────┼─────────────┐
                  ▼             ▼             ▼
           ┌────────────┐ ┌────────────┐ ┌────────────┐
-          │  Priority  │ │   Shadow   │ │   Quality  │
-          │  Scoring   │ │  Analysis  │ │   Analysis │
+          │  Priority  │ │ Shadow-    │ │  Quality   │
+          │  Scoring   │ │ Related    │ │  Analysis  │
+          │            │ │ Analysis   │ │            │
           └─────┬──────┘ └─────┬──────┘ └─────┬──────┘
                 │              │              │
                 └──────────────┼──────────────┘
@@ -305,23 +343,24 @@ Feedback & Detection History
 
 ---
 
-# 🛠️ Technology Stack
+## 🛠️ Technology Stack
 
 | Technology | Purpose |
-|------------|---------|
-| Python | Core application and AI processing |
+|---|---|
+| Python 3.12 (recommended) | Core application and AI processing |
 | Streamlit | Web application interface |
-| Ultralytics YOLO | Object detection |
-| OpenCV | Image processing and computer vision |
+| Ultralytics YOLO11n | Object detection |
+| OpenCV | Image preprocessing and computer vision |
 | Pandas | Data handling and feedback logging |
 | Pillow | Image loading and processing |
 | Plotly | Data visualization |
+| Streamlit Community Cloud | Current deployment platform |
 
 ---
 
-# 🤖 AI Model
+## 🤖 AI Model
 
-AquaShield uses a trained **YOLO11n object detection model**.
+AquaShield uses a trained **YOLO11n object-detection model** in the current prototype.
 
 The trained model is stored in:
 
@@ -329,7 +368,7 @@ The trained model is stored in:
 model/best.pt
 ```
 
-The model was trained to detect four classes:
+The model detects the following current prototype classes:
 
 ```text
 0 → Aircraft
@@ -338,27 +377,31 @@ The model was trained to detect four classes:
 3 → Ship
 ```
 
-The model provides bounding-box detections and confidence scores for objects identified in an input image.
+The model provides bounding boxes and confidence scores for objects identified in an uploaded image.
+
+> The current model demonstrates the AI-detection workflow. It is not yet a validated marine-debris detector and should not be used for real navigation, cleanup, or safety-critical decisions.
 
 ---
 
-# 📊 Model Performance
+## 📊 Current Model Performance
 
 | Metric | Value |
-|--------|-------|
+|---|---:|
 | Model | YOLO11n |
 | Precision | 47.3% |
 | Recall | 55.3% |
 | mAP@0.50 | 51.5% |
-| mAP@0.50-0.95 | 31.4% |
+| mAP@0.50–0.95 | 31.4% |
 | Training Images | 402 |
 | Validation Images | 110 |
 
-These metrics represent the performance observed during the model-development process and should not be interpreted as production-level accuracy.
+These metrics represent performance observed during model development on the current prototype dataset.
+
+They should not be interpreted as production-level performance or as final marine-debris detection accuracy.
 
 ---
 
-# 📁 Project Structure
+## 📁 Project Structure
 
 ```text
 AquaShield/
@@ -367,6 +410,7 @@ AquaShield/
 ├── requirements.txt
 ├── feedback_log.csv
 ├── .gitignore
+├── README.md
 │
 ├── model/
 │   └── best.pt
@@ -392,94 +436,47 @@ AquaShield/
 
 ---
 
-# 🔄 Application Workflow
+## 🧑‍💻 Getting Started
 
-### Step 1 — Upload
+### Prerequisites
 
-The user selects an underwater or sonar-style image through the Streamlit interface.
+- Python 3.12 (recommended; Python 3.13 caused PyTorch errors during development)
+- A virtual environment is recommended
 
-### Step 2 — Preprocessing
-
-The uploaded image is prepared for analysis.
-
-### Step 3 — Quality Assessment
-
-The system evaluates image characteristics that may affect detection reliability.
-
-### Step 4 — AI Detection
-
-The trained YOLO model analyzes the image and identifies objects.
-
-### Step 5 — Confidence Filtering
-
-Only detections meeting the selected confidence threshold are presented.
-
-The default threshold is **0.50**.
-
-### Step 6 — Visual Results
-
-Detected objects are displayed using bounding boxes and associated information.
-
-### Step 7 — Supporting Analysis
-
-The application provides additional analysis such as image quality, priority scoring, and shadow-related cues.
-
-### Step 8 — Reporting
-
-The user can generate a structured summary of the analysis.
-
-### Step 9 — Location
-
-Coordinates can be entered when geographic information is available.
-
-### Step 10 — Feedback & History
-
-Users can review previous analysis activity and provide feedback on detections.
-
----
-
-# 🧑‍💻 Getting Started
-
-## Prerequisites
-
-Make sure Python is installed on your system.
-
-A virtual environment is recommended.
-
-### 1. Clone the repository
+### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/Jesika-23/AquaShield.git
-cd AquaShield
+git clone https://github.com/jesika-23/aquashield.git
+cd aquashield
 ```
 
-### 2. Create a virtual environment
+### 2. Create a Virtual Environment
 
 ```bash
 python -m venv venv
 ```
 
-### 3. Activate the virtual environment
+### 3. Activate the Virtual Environment
 
-**Windows:**
+**Windows**
 
 ```bash
 venv\Scripts\activate
 ```
 
-**Linux / macOS:**
+**Linux / macOS**
 
 ```bash
 source venv/bin/activate
 ```
 
-### 4. Install dependencies
+### 4. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 5. Run the application
+### 5. Run the Application
 
 ```bash
 streamlit run app.py
@@ -489,82 +486,81 @@ The application will open in your browser.
 
 ---
 
-# 🌐 Deployment
+## 🌐 Deployment
 
-AquaShield is deployed using **Streamlit Community Cloud** and connected to the GitHub repository.
+AquaShield is currently deployed using **Streamlit Community Cloud** and connected to the GitHub repository.
 
-### Live Application
+The deployed application uses the project `requirements.txt` file to install the required dependencies.
 
-https://jesika-23-aquashield-app-bnkxiv.streamlit.app/
-
-The deployment automatically uses the project's `requirements.txt` file to install the required Python dependencies.
+> The current public deployment is the integrated Streamlit prototype. Future versions may separate the system into a FastAPI backend and Streamlit frontend, with Docker-based deployment on cloud platforms such as **AWS**, or on edge infrastructure.
 
 ---
 
-# 🔮 Future Enhancements
+## 🔮 Future Enhancements
 
-AquaShield can be extended in several directions:
+AquaShield can be extended through:
 
-- Larger and more diverse underwater datasets
+- Larger and more diverse real sonar datasets
+- Labeled marine-debris datasets
 - Improved object-detection accuracy
-- Real sonar-data integration
-- Real-time video or sonar-stream detection
-- GPS and mission-data integration
+- Real side-scan sonar integration
+- Debris-specific model classes
+- FastAPI backend and Streamlit frontend separation
+- Dockerized cloud deployment (for example on AWS) and edge deployment
+- ONNX Runtime optimization for lightweight CPU inference
+- GPS, survey-mission, and vessel-data integration
+- Geo-referencing and debris clustering
+- Navigation-risk layers
+- Ecological-sensitivity layers
 - Advanced anomaly detection
-- Improved acoustic-shadow modeling
-- More robust underwater image enhancement
+- Validated acoustic-shadow modeling
 - Human-feedback-based model improvement
-- Integration with autonomous underwater vehicles
 - Multi-frame object tracking
 - Cloud-based detection history
-- More advanced monitoring dashboards
+- Advanced mapping and monitoring dashboards
+- Field trials with survey agencies and marine-cleanup organizations
 
 ---
 
-# ⚠️ Limitations & Disclaimer
+## ⚠️ Limitations and Disclaimer
 
 AquaShield is a **research and educational prototype**.
 
-The current detection model was trained using a relatively small dataset. Model predictions may therefore contain false positives or false negatives.
+The current detection model was trained on a relatively small dataset and uses prototype or proxy object classes. Predictions may contain false positives or false negatives.
 
-The image-quality assessment, priority scoring, anomaly signals, and acoustic-shadow analysis are prototype heuristic components. They should be considered supporting decision-making features rather than scientifically validated sonar measurements.
+The image-quality assessment, priority scoring, anomaly-related signals, map/location support, and shadow-related analysis are prototype heuristic components.
 
-In particular, the acoustic-shadow component is **not a validated sonar-physics model**.
+They should be treated as supporting decision-making features, not scientifically validated sonar measurements.
 
-AquaShield is not certified for navigation, safety-critical operations, or autonomous decision-making.
+In particular:
 
-All AI-generated detections should be reviewed and verified by a human operator before any real-world action is taken.
-
----
-
-# 📌 Project Status
-
-**Status: Functional Research Prototype**
-
-The current prototype demonstrates an end-to-end workflow for:
-
-```text
-Image Upload
-      ↓
-AI Detection
-      ↓
-Confidence Filtering
-      ↓
-Visual Results
-      ↓
-Supporting Analysis
-      ↓
-Priority Assessment
-      ↓
-Reporting
-      ↓
-Feedback & History
-```
+- The shadow-related component is **not a validated acoustic-sonar physics model**
+- The current object classes are **not final marine-debris categories**
+- The model is **not validated on operational marine-debris survey data**
+- Location support is manual; there is no automatic geo-referencing
+- Feedback is logged for future use, but the model does not learn from it yet
+- The system is **not certified for navigation or safety-critical operations**
+- All detections must be reviewed and verified by a qualified human operator before real-world action is taken
 
 ---
 
-# 📄 License & Notes
+## 👥 Team
+
+**Team Hackcult** — R.M.D. Engineering College
+
+- Haripriya S [Team Lead]
+- Jesika M V
+- Kodavala Dhurgasree
+- Rupendra M
+- Pranav Mani S
+- Sanjay Raaj D
+
+---
+
+## 📄 License and Notes
 
 © 2026 AquaShield — Research prototype for educational and demonstration purposes.
 
-This project is intended to demonstrate the potential of AI-assisted underwater image analysis and monitoring workflows.
+This project uses Ultralytics YOLO, which is released under the AGPL-3.0 license. Please review the Ultralytics licensing terms before reusing or redistributing the model or code.
+
+This project demonstrates the potential of AI-assisted underwater and sonar-style image analysis for future marine monitoring, survey review, and debris-prioritization workflows.
