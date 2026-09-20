@@ -6,14 +6,12 @@ Custom HTML/CSS/JS is injected on top of Streamlit to deliver a full
 product-grade marine-surveillance UI while all inference stays in Python.
 """
 
-
 from pathlib import Path
-
 
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 from PIL import Image, UnidentifiedImageError
-
 
 from utils.inference import load_model, run_inference, detect_visual_anomalies
 from utils.report import build_text_report
@@ -24,15 +22,12 @@ from utils.priority import compute_priority, priority_badge_color
 from utils.history import add_history_entry, get_history_df, history_count
 import numpy as np
 
-
 try:
     from utils.map_view import build_location_dataframe, render_map_figure, PLOTLY_AVAILABLE
 except ImportError:
     PLOTLY_AVAILABLE = False
 
-
 BASE_DIR = Path(__file__).resolve().parent
-
 
 MODEL_METRICS = {
     "precision": 0.473,
@@ -42,7 +37,6 @@ MODEL_METRICS = {
     "train_images": 402,
     "val_images": 110,
 }
-
 
 CLASSES = [
     {"code": "AIR", "name": "Aircraft", "chip": "#FFB020", "css": "aircraft",
@@ -67,7 +61,6 @@ st.set_page_config(
 )
 
 
-
 def inject_css():
     css_path = BASE_DIR / "assets" / "style.css"
     st.markdown(
@@ -80,8 +73,24 @@ def inject_css():
     st.markdown(f"<style>{css_path.read_text()}</style>", unsafe_allow_html=True)
 
 
-
 inject_css()
+
+# Streamlit's header is a full-width, fixed bar that sits ABOVE the custom
+# navbar. Even though it is transparent, it swallows every click meant for
+# the nav links. Let clicks pass through it, but keep its own buttons
+# (sidebar toggle, menu) clickable.
+st.markdown(
+    """
+    <style>
+    header[data-testid="stHeader"],
+    header[data-testid="stHeader"] * { pointer-events: none !important; }
+    header[data-testid="stHeader"] button,
+    header[data-testid="stHeader"] a,
+    header[data-testid="stHeader"] [role="button"] { pointer-events: auto !important; }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 
 # ------------------------------------------------------------------ #
@@ -105,11 +114,9 @@ with st.sidebar:
              "the image so you can compare Original vs Enhanced detections.",
     )
 
-
     st.markdown('<div class="ds-sidebar-title">Analysis Settings</div>', unsafe_allow_html=True)
     show_shadow = st.checkbox("Run acoustic-shadow analysis (prototype heuristic)", value=True)
     show_priority = st.checkbox("Run explainable priority scoring", value=True)
-
 
     st.markdown('<div class="ds-sidebar-title">Location</div>', unsafe_allow_html=True)
     st.caption(
@@ -119,7 +126,6 @@ with st.sidebar:
     ds_longitude = st.text_input("Longitude (optional)", value="", placeholder="e.g. 80.2707")
     st.session_state["ds_latitude"] = ds_latitude
     st.session_state["ds_longitude"] = ds_longitude
-
 
     st.markdown('<div class="ds-sidebar-title">System Status</div>', unsafe_allow_html=True)
     st.markdown(
@@ -132,6 +138,9 @@ with st.sidebar:
 
 # ------------------------------------------------------------------ #
 # Navbar
+# NOTE: Streamlit strips <script> tags and inline onclick handlers from
+# st.markdown, so the smooth scrolling is wired up by the components.html
+# snippet at the very bottom of this file.
 # ------------------------------------------------------------------ #
 st.markdown(
     """
@@ -175,7 +184,6 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-
 
 
 # ------------------------------------------------------------------ #
@@ -252,9 +260,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-
 left, right = st.columns([1, 1], gap="large")
-
 
 with left:
     with st.container(border=True):
@@ -269,7 +275,6 @@ with left:
             "\u25B8  Analyze Image", use_container_width=True, disabled=uploaded_file is None,
         )
 
-
     with st.container(border=True):
         st.markdown("**Reference / Baseline Sonar Image**")
         st.caption(
@@ -282,7 +287,6 @@ with left:
             label_visibility="collapsed",
             key="reference_uploader",
         )
-
 
 with right:
     with st.container(border=True):
@@ -303,7 +307,6 @@ if analyze_clicked and uploaded_file is not None:
             st.error(str(e))
             st.stop()
 
-
         try:
             pil_image = Image.open(uploaded_file)
             pil_image.load()  # force full decode now so a corrupt/truncated
@@ -321,7 +324,6 @@ if analyze_clicked and uploaded_file is not None:
             )
             st.stop()
 
-
         try:
             result = run_inference(model, pil_image, conf_threshold=conf_threshold)
             st.session_state["ds_result"] = result
@@ -329,14 +331,12 @@ if analyze_clicked and uploaded_file is not None:
             st.session_state["ds_original"] = pil_image
             st.session_state["ds_conf"] = conf_threshold
 
-
             # -------------------------------------------------- #
             # NEW: Image Quality Assessment (prototype heuristic layer)
             # -------------------------------------------------- #
             rgb_array = np.array(pil_image.convert("RGB"))
             quality_report = assess_image_quality(rgb_array)
             st.session_state["ds_quality"] = quality_report
-
 
             # -------------------------------------------------- #
             # NEW: Optional prototype preprocessing + comparison pass
@@ -352,7 +352,6 @@ if analyze_clicked and uploaded_file is not None:
                 st.session_state["ds_enhanced_image"] = None
                 st.session_state["ds_enhanced_result"] = None
 
-
             # -------------------------------------------------- #
             # NEW: Acoustic-shadow analysis (prototype heuristic layer)
             # -------------------------------------------------- #
@@ -361,7 +360,6 @@ if analyze_clicked and uploaded_file is not None:
             else:
                 shadow_results = []
             st.session_state["ds_shadows"] = shadow_results
-
 
             # -------------------------------------------------- #
             # NEW: Explainable priority scoring per detection
@@ -386,7 +384,6 @@ if analyze_clicked and uploaded_file is not None:
                 "Something went wrong while analyzing this image. "
                 "Please try again or use a different file."
             )
-
 
         # ---------------------------------------------------------- #
         # OPTIONAL SECOND LAYER: classical CV visual anomaly check.
@@ -417,7 +414,6 @@ if analyze_clicked and uploaded_file is not None:
             # so it doesn't linger from a previous upload.
             st.session_state["ds_anomaly_result"] = None
 
-
         # ---------------------------------------------------------- #
         # NEW: fold anomaly presence into priority scores now that the
         # anomaly check (if any) has run, then log this run to session
@@ -426,7 +422,6 @@ if analyze_clicked and uploaded_file is not None:
         anomaly_res = st.session_state.get("ds_anomaly_result")
         anomaly_present = bool(anomaly_res and anomaly_res.get("reliable") and anomaly_res.get("count", 0) > 0)
         anomaly_count_for_history = anomaly_res["count"] if (anomaly_res and anomaly_res.get("reliable")) else None
-
 
         quality_report = st.session_state.get("ds_quality")
         shadow_results = st.session_state.get("ds_shadows", [])
@@ -446,12 +441,10 @@ if analyze_clicked and uploaded_file is not None:
                 )
         st.session_state["ds_priorities"] = recomputed_priorities
 
-
         top_priority = "N/A"
         if recomputed_priorities:
             order = {"HIGH": 3, "REQUIRES HUMAN VERIFICATION": 3, "MEDIUM": 2, "LOW": 1}
             top_priority = max(recomputed_priorities, key=lambda p: order.get(p.priority, 0)).priority
-
 
         add_history_entry(
             image_name=uploaded_file.name,
@@ -471,7 +464,6 @@ if "ds_result" in st.session_state:
     result = st.session_state["ds_result"]
     detections = result["detections"]
 
-
     st.markdown("<div style='height:36px'></div>", unsafe_allow_html=True)
     st.markdown(
         f"""
@@ -485,7 +477,6 @@ if "ds_result" in st.session_state:
         unsafe_allow_html=True,
     )
 
-
     # ---------------------------------------------------------------- #
     # NEW: Image Quality Assessment (prototype quality-awareness layer,
     # not an accuracy predictor)
@@ -493,11 +484,11 @@ if "ds_result" in st.session_state:
     quality_report = st.session_state.get("ds_quality")
     if quality_report is not None:
         st.markdown('<div class="ds-section-head" style="margin-top:8px;">'
-                     '<div class="eyebrow">Pre-flight Check</div>'
-                     '<h2>Image quality assessment '
-                     '<span class="ds-proto-tag">Prototype heuristic</span></h2>'
-                     '<p>Classical image statistics only &mdash; not a prediction of model accuracy.</p>'
-                     '</div>', unsafe_allow_html=True)
+                    '<div class="eyebrow">Pre-flight Check</div>'
+                    '<h2>Image quality assessment '
+                    '<span class="ds-proto-tag">Prototype heuristic</span></h2>'
+                    '<p>Classical image statistics only &mdash; not a prediction of model accuracy.</p>'
+                    '</div>', unsafe_allow_html=True)
         with st.container(border=True):
             rating_class = quality_report.rating.lower()
             st.markdown(
@@ -516,9 +507,7 @@ if "ds_result" in st.session_state:
             for w in quality_report.warnings:
                 st.markdown(f'<div class="ds-warning-line">&#9888; {w}</div>', unsafe_allow_html=True)
 
-
     st.markdown("<div style='height:20px'></div>", unsafe_allow_html=True)
-
 
     img_col1, img_col2 = st.columns(2, gap="large")
     with img_col1:
@@ -527,7 +516,6 @@ if "ds_result" in st.session_state:
     with img_col2:
         with st.container(border=True):
             st.image(result["annotated_image"], use_container_width=True, caption="AI-detected objects")
-
 
     # ---------------------------------------------------------------- #
     # NEW: Optional prototype preprocessing -- Original vs Enhanced
@@ -548,7 +536,6 @@ if "ds_result" in st.session_state:
                 st.image(enhanced_result["annotated_image"], use_container_width=True,
                          caption=f"Enhanced — {len(enhanced_result['detections'])} detection(s)")
 
-
     # ---------------------------------------------------------------- #
     # OPTIONAL SECOND LAYER RESULTS -- classical CV visual anomaly check
     # Only shown when a reference/baseline image was uploaded this run.
@@ -561,7 +548,6 @@ if "ds_result" in st.session_state:
             st.markdown("**Unclassified Visual Anomaly Check (optional, second layer)**")
             st.caption("Classical CV heuristic \u2014 not a trained AI detection.")
 
-
             if not anomaly_result["reliable"]:
                 st.warning(anomaly_result["warning"])
             else:
@@ -573,7 +559,6 @@ if "ds_result" in st.session_state:
                 if anomaly_result["count"] == 0:
                     st.caption("No significant visual changes detected versus the reference image.")
 
-
     # ---------------------------------------------------------------- #
     # NEW: Acoustic-shadow analysis (prototype heuristic, not real
     # sonar physics)
@@ -582,11 +567,11 @@ if "ds_result" in st.session_state:
     if shadow_results:
         st.markdown("<div style='height:20px'></div>", unsafe_allow_html=True)
         st.markdown('<div class="ds-section-head">'
-                     '<div class="eyebrow">Secondary Cue</div>'
-                     '<h2>Acoustic-shadow analysis '
-                     '<span class="ds-proto-tag">Prototype heuristic</span></h2>'
-                     '<p>Classical-CV shadow footprint estimate per detection &mdash; not validated sonar physics.</p>'
-                     '</div>', unsafe_allow_html=True)
+                    '<div class="eyebrow">Secondary Cue</div>'
+                    '<h2>Acoustic-shadow analysis '
+                    '<span class="ds-proto-tag">Prototype heuristic</span></h2>'
+                    '<p>Classical-CV shadow footprint estimate per detection &mdash; not validated sonar physics.</p>'
+                    '</div>', unsafe_allow_html=True)
         with st.container(border=True):
             for i, sr in enumerate(shadow_results):
                 det_label = detections[i]["class"] if i < len(detections) else f"Object {i+1}"
@@ -601,18 +586,19 @@ if "ds_result" in st.session_state:
                     f'</div>',
                     unsafe_allow_html=True,
                 )
-                    # ---------------------------------------------------------------- #
+
+    # ---------------------------------------------------------------- #
     # NEW: Explainable priority scoring (decision-support heuristic)
     # ---------------------------------------------------------------- #
     priority_results = st.session_state.get("ds_priorities", [])
     if priority_results:
         st.markdown("<div style='height:20px'></div>", unsafe_allow_html=True)
         st.markdown('<div class="ds-section-head">'
-                     '<div class="eyebrow">Triage</div>'
-                     '<h2>Explainable priority scoring '
-                     '<span class="ds-proto-tag">Decision-support heuristic</span></h2>'
-                     '<p>Combines confidence, size, quality, anomaly and shadow signals into a plain-language recommendation. Final judgment always rests with a human reviewer.</p>'
-                     '</div>', unsafe_allow_html=True)
+                    '<div class="eyebrow">Triage</div>'
+                    '<h2>Explainable priority scoring '
+                    '<span class="ds-proto-tag">Decision-support heuristic</span></h2>'
+                    '<p>Combines confidence, size, quality, anomaly and shadow signals into a plain-language recommendation. Final judgment always rests with a human reviewer.</p>'
+                    '</div>', unsafe_allow_html=True)
         with st.container(border=True):
             for i, pr in enumerate(priority_results):
                 det_label = detections[i]["class"] if i < len(detections) else f"Object {i+1}"
@@ -628,12 +614,9 @@ if "ds_result" in st.session_state:
                     unsafe_allow_html=True,
                 )
 
-
     st.markdown("<div style='height:20px'></div>", unsafe_allow_html=True)
 
-
     res_col1, res_col2 = st.columns([1.3, 1], gap="large")
-
 
     with res_col1:
         with st.container(border=True):
@@ -680,7 +663,6 @@ if "ds_result" in st.session_state:
                 chip_map = {c["css"]: c["chip"] for c in CLASSES}
                 current_file_name = st.session_state["ds_file_name"]
 
-
                 for idx, det in enumerate(detections):
                     css_cls = det["class"].lower()
                     chip = chip_map.get(css_cls, "#5EEAD4")
@@ -694,7 +676,6 @@ if "ds_result" in st.session_state:
                     )
                     st.markdown(row_html, unsafe_allow_html=True)
 
-
                     feedback_key = f"fb_{current_file_name}_{idx}"
                     feedback_choice = st.radio(
                         "Is this detection correct?",
@@ -704,7 +685,6 @@ if "ds_result" in st.session_state:
                         index=None,
                         label_visibility="collapsed",
                     )
-
 
                     saved_flag_key = f"{feedback_key}_saved_as"
                     if feedback_choice is not None and st.session_state.get(saved_flag_key) != feedback_choice:
@@ -720,16 +700,13 @@ if "ds_result" in st.session_state:
                         )
                         st.session_state[saved_flag_key] = feedback_choice
 
-
                     if feedback_choice is not None:
                         st.caption(f"Feedback recorded: {feedback_choice}")
-
 
                 st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
                 st.caption(
                     "Human feedback is stored for future model improvement and retraining."
                 )
-
 
     with res_col2:
         with st.container(border=True):
@@ -746,14 +723,12 @@ if "ds_result" in st.session_state:
             else:
                 st.caption("Coordinates: Location not provided")
 
-
             anomaly_result_for_report = st.session_state.get("ds_anomaly_result")
             report_anomaly_count = (
                 anomaly_result_for_report["count"]
                 if anomaly_result_for_report is not None and anomaly_result_for_report["reliable"]
                 else None
             )
-
 
             report_text = build_text_report(
                 file_name=st.session_state["ds_file_name"],
@@ -774,7 +749,6 @@ if "ds_result" in st.session_state:
                 use_container_width=True,
             )
 
-
 st.markdown("</div>", unsafe_allow_html=True)  # close #upload section
 
 
@@ -794,10 +768,8 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-
 feedback_df = None
 feedback_read_error = False
-
 
 if FEEDBACK_CSV_PATH.exists():
     try:
@@ -806,7 +778,6 @@ if FEEDBACK_CSV_PATH.exists():
             feedback_df = None
     except Exception:
         feedback_read_error = True
-
 
 if feedback_read_error:
     st.warning(
@@ -823,13 +794,11 @@ else:
         incorrect_n = int(counts.get("Incorrect", 0))
         unsure_n = int(counts.get("Unsure", 0))
 
-
         fi1, fi2, fi3, fi4 = st.columns(4)
         fi1.metric("Total feedback entries", total_entries)
         fi2.metric("Correct", correct_n)
         fi3.metric("Incorrect", incorrect_n)
         fi4.metric("Unsure", unsure_n)
-
 
         decided_n = correct_n + incorrect_n
         if decided_n > 0:
@@ -843,7 +812,6 @@ else:
             "from this rate."
         )
 
-
         st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
         st.markdown("**Breakdown by displayed class**")
         if "displayed_class" in feedback_df.columns:
@@ -855,7 +823,6 @@ else:
             st.dataframe(class_breakdown, use_container_width=True)
         else:
             st.caption("No class information found in the feedback log.")
-
 
         # ------------------------------------------------------ #
         # NEW: Dataset-ready export (does not retrain the model)
@@ -883,7 +850,6 @@ else:
                 use_container_width=True,
             )
 
-
 st.markdown("</div>", unsafe_allow_html=True)  # close #feedback-insights section
 
 
@@ -909,7 +875,6 @@ with st.container(border=True):
         st.markdown('<div class="ds-history-wrap">', unsafe_allow_html=True)
         st.dataframe(history_df, use_container_width=True, hide_index=True)
         st.markdown('</div>', unsafe_allow_html=True)
-
 
         if PLOTLY_AVAILABLE:
             loc_df = build_location_dataframe(history_df)
@@ -941,4 +906,102 @@ st.markdown(
     </div>
     """,
     unsafe_allow_html=True,
+)
+
+
+# ------------------------------------------------------------------ #
+# Navbar smooth-scroll handler
+# Streamlit strips <script> from st.markdown, so the handler is attached
+# from a zero-height components.html iframe that reaches the main page
+# through window.parent. Keep this at the very bottom of the file.
+# ------------------------------------------------------------------ #
+components.html(
+    """
+    <script>
+    (function () {
+      var win = window.parent;
+      var doc = win.document;
+      var OFFSET = 80; // height of the fixed navbar
+      var SKIP = 'section[data-testid="stSidebar"], [data-testid="stSidebar"], button, input, textarea, select, [role="button"]';
+
+      function findTarget(id) {
+        return doc.getElementById(id)
+            || doc.getElementById("user-content-" + id)
+            || doc.querySelector('[id$="' + id + '"]');
+      }
+
+      // Streamlit scrolls inside its own container, not the window
+      function getScroller(target) {
+        var el = target.parentElement;
+        while (el && el !== doc.body) {
+          var oy = win.getComputedStyle(el).overflowY;
+          if ((oy === "auto" || oy === "scroll") && el.scrollHeight > el.clientHeight) {
+            return el;
+          }
+          el = el.parentElement;
+        }
+        return null;
+      }
+
+      function scrollToId(id) {
+        var target = findTarget(id);
+        if (!target) {
+          console.warn("[AquaShield nav] no element found for #" + id);
+          return;
+        }
+        var scroller = getScroller(target);
+        if (scroller) {
+          var top = target.getBoundingClientRect().top
+                  - scroller.getBoundingClientRect().top
+                  + scroller.scrollTop - OFFSET;
+          scroller.scrollTo({ top: Math.max(top, 0), behavior: "smooth" });
+        } else {
+          var y = target.getBoundingClientRect().top + win.pageYOffset - OFFSET;
+          win.scrollTo({ top: Math.max(y, 0), behavior: "smooth" });
+        }
+      }
+
+      // Which navbar link is under the mouse? Uses coordinates, so it still
+      // works when another Streamlit element is stacked on top of the navbar.
+      function linkAt(e) {
+        var node = e.target;
+        if (node && node.closest && node.closest(SKIP)) return null;
+        var links = doc.querySelectorAll(".ds-nav .links a");
+        for (var i = 0; i < links.length; i++) {
+          var r = links[i].getBoundingClientRect();
+          if (r.width === 0 || r.height === 0) continue;
+          if (e.clientX >= r.left - 6 && e.clientX <= r.right + 6 &&
+              e.clientY >= r.top - 6 && e.clientY <= r.bottom + 6) {
+            return links[i];
+          }
+        }
+        return null;
+      }
+
+      // Remove handlers left over from a previous rerun
+      if (win.__dsNavHandler) doc.removeEventListener("click", win.__dsNavHandler, true);
+      if (win.__dsNavMove) doc.removeEventListener("mousemove", win.__dsNavMove, true);
+
+      win.__dsNavHandler = function (e) {
+        var link = linkAt(e);
+        if (!link) return;
+        e.preventDefault();
+        e.stopPropagation();
+        var id = (link.getAttribute("href") || "").replace("#", "");
+        console.log("[AquaShield nav] click -> #" + id, "| element under cursor:", e.target);
+        scrollToId(id);
+      };
+
+      win.__dsNavMove = function (e) {
+        doc.documentElement.style.cursor = linkAt(e) ? "pointer" : "";
+      };
+
+      // capture phase so it runs before Streamlit's own handling
+      doc.addEventListener("click", win.__dsNavHandler, true);
+      doc.addEventListener("mousemove", win.__dsNavMove, true);
+      console.log("[AquaShield nav] handler attached (v3)");
+    })();
+    </script>
+    """,
+    height=0,
 )
