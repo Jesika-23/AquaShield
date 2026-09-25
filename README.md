@@ -2,7 +2,7 @@
 
 ## AI-Powered Sonar-Style Image Analysis Prototype
 
-**Smart India Hackathon 2026 | Problem Statement SIH26057 | Team Hackcult | R.M.D. Engineering College**
+**Smart India Hackathon 2026 | Problem Statement SIH26057 | Team Hackcult_80 | R.M.D. Engineering College**
 
 AquaShield is a research and educational prototype for AI-assisted analysis of underwater and sonar-style images.
 
@@ -71,7 +71,7 @@ Survey agencies may collect large volumes of side-scan sonar or underwater image
 
 AquaShield provides an AI-assisted workflow in which users can upload an underwater or sonar-style image and receive object-detection results with supporting analysis.
 
-The project was developed by Team Hackcult from R.M.D. Engineering College for Smart India Hackathon 2026, Problem Statement **SIH26057**: *AI-Powered Automated Underwater Marine Debris and Anomaly Detection Using Side-Scan Sonar Imagery*.
+The project was developed by Team Hackcult_80 from R.M.D. Engineering College for Smart India Hackathon 2026, Problem Statement **SIH26057**: *AI-Powered Automated Underwater Marine Debris and Anomaly Detection Using Side-Scan Sonar Imagery*.
 
 AquaShield is designed as a decision-support prototype. It assists human reviewers and does not replace expert judgment.
 
@@ -545,7 +545,7 @@ In particular:
 
 ## 👥 Team
 
-**Team Hackcult** — R.M.D. Engineering College
+**Team Hackcult_80** — R.M.D. Engineering College
 
 - Haripriya S [Team Lead]
 - Jesika M V
